@@ -35,7 +35,7 @@ if (processArguments.name === "" || processArguments.config.ip === undefined) {
 }
 
 if (!processArguments.config.interval) {
-	processArguments.config.interval = 1000	;
+	processArguments.config.interval = 1000;
 }
 
 /**
@@ -50,7 +50,7 @@ var homeUiApi = require("../../frontend/mainApi.js");
   **/
   
 var fs = require("fs");
-if (true) {
+if (false) {
 	var mtime = false;
 	function checkMTime () {
 		fs.stat(__filename, function (err, res) { 
@@ -88,6 +88,8 @@ homeUiApi.requestApi("device", "POST", {
 			var goToActivity = null;
 			
 			var updateKnownActivity = function (activityId) {
+				currentActivity = activityId;
+				
 				homeUiApi.requestApi("deviceValue", "POST", {
 					"id": id,
 					"value": JSON.stringify({
@@ -101,32 +103,41 @@ homeUiApi.requestApi("device", "POST", {
 			
 			var checkOrSetCurrentState = function () {
 				if (goToActivity !== null) {
-					var waitForActivity = goToActivity;
-					
-					//set value and wait till its finished!
-					harmonyClient.startActivity(goToActivity);
-					
-					var checkActivityIsStarted = function () {
-						harmonyClient.getCurrentActivity().then(function (activityId) { 
-							if (waitForActivity !== activityId) {
-								setTimeout(checkActivityIsStarted, processArguments.config.timeout);
-							}
-							else {
-								if (goToActivity === waitForActivity) {
-									goToActivity = null;
+					if (goToActivity !== currentActivity) {
+						var waitForActivity = parseInt(goToActivity);
+						
+						//set value and wait till its finished!
+						harmonyClient.startActivity(goToActivity);
+						
+						var checkActivityIsStarted = function () {
+							harmonyClient.getCurrentActivity().then(function (activityId) {
+								activityId = parseInt(activityId);
+							
+								if (waitForActivity !== activityId) {
+									setTimeout(checkActivityIsStarted, processArguments.config.timeout);
 								}
-								checkOrSetCurrentState();
-							} 
-						});
-					};
-					
-					checkActivityIsStarted();
+								else {
+									currentActivity = waitForActivity;
+									if (goToActivity === waitForActivity) {
+										goToActivity = null;
+									}
+									checkOrSetCurrentState();
+								} 
+							});
+						};
+						
+						checkActivityIsStarted();
+					}
+					else {
+						goToActivity = null;
+						checkOrSetCurrentState();
+					}
 				}
 				else {
 					harmonyClient.getCurrentActivity().then(function (activityId) {
+						activityId = parseInt(activityId);
+						
 						if (currentActivity !== activityId) {
-							currentActivity = activityId;
-							
 							if (knownActivities[activityId]) {
 								updateKnownActivity(activityId);
 							}
@@ -161,11 +172,7 @@ homeUiApi.requestApi("device", "POST", {
 			checkOrSetCurrentState();
 			
 			homeUiApi.onDeviceChange(id, function (deviceData) {
-				console.log(deviceData, deviceData.value.key !== currentActivity);
-				
-				if (deviceData.value.key !== currentActivity) {
-					goToActivity = deviceData.value.key;
-				}
+				goToActivity = parseInt(deviceData.value.key);
 			});
 			
 		}).catch(function (err) {
