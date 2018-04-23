@@ -1,0 +1,23 @@
+{
+  "name": "home-ui-harmonyhub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "harmonyhubjs-client": "^1.1.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjakie/home-ui-harmonyhub.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tjakie/home-ui-harmonyhub/issues"
+  },
+  "homepage": "https://github.com/tjakie/home-ui-harmonyhub#readme"
+}
