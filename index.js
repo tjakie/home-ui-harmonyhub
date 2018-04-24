@@ -97,6 +97,8 @@ homeUiApi.requestApi("device", "POST", {
 						"label": knownActivities[activityId].label
 					})
 				}, function () { 
+					console.log("New activity", activityId);
+												
 					setTimeout(checkOrSetCurrentState, processArguments.config.timeout);
 				});
 			};
@@ -117,6 +119,8 @@ homeUiApi.requestApi("device", "POST", {
 									setTimeout(checkActivityIsStarted, processArguments.config.timeout);
 								}
 								else {
+									console.log("Set activity", waitForActivity);
+									
 									currentActivity = waitForActivity;
 									if (goToActivity === waitForActivity) {
 										goToActivity = null;
@@ -176,7 +180,10 @@ homeUiApi.requestApi("device", "POST", {
 			});
 			
 		}).catch(function (err) {
-			throw err;
+			setTimeout(function () {
+				throw err;
+			}, 10000);
+			
 		});
 	}
 });
